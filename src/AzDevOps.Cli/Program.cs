@@ -20,20 +20,13 @@ using IHost host = Host.CreateDefaultBuilder(args)
     }).Build();
 
 var ado = host.Services.GetRequiredService<IAzDevOpsService>();
-
-var obj = await ado.GetAccountAsync(null);
-foreach (var a in obj) {
-
-    Console.WriteLine(a.AccountName);
-}
-var obj2 = await ado.GetProjectAsync();
-Console.WriteLine(obj2);
+var orgList = ado.GetAccountAsync(null).Result;
 
 
 Application.Init();
 
 try {
-    Application.Run(new MyView());
+    Application.Run(new AzDevOpsWindow(orgList));
 }
 finally {
     Application.Shutdown();
