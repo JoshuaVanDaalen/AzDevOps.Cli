@@ -43,21 +43,6 @@ public sealed class AzDevOpsService : IAzDevOpsService {
 
     #endregion Constructors
 
-    //public void GetAccount() {
-
-
-    //    var repoList = _azDevOpsClient.GetRepositoriesAsync().Result;
-
-    //    foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(repoList)) {
-    //        string name = descriptor.Name;
-    //        object value = descriptor.GetValue(repoList);
-    //        Console.WriteLine("{0}={1}", name, value);
-    //    }
-
-
-    //}
-
-
     /// <summary>
     /// GET https://app.vssps.visualstudio.com/_apis/accounts?api-version=5.1
     /// GET https://app.vssps.visualstudio.com/_apis/accounts?memberId=d6245f20-2af8-44f4-9451-8107cb2767db&api-version=5.1
@@ -66,19 +51,6 @@ public sealed class AzDevOpsService : IAzDevOpsService {
     /// <param id="1e7eb287-5152-4fb8-8144-29bf0670d98b"></param>
     /// <param isOwner="true"></param>
     /// <returns></returns>
-    //public HttpResponseMessage GetAccountAsync(Guid? id, bool isOwner = false) {
-    //    var httpClient = _client.CreateClient("BudgetApi");
-
-    //    var requestUri = "_apis/accounts";
-    //    var queryString = $"?{_apiVersion}";
-
-    //    if (id is null)
-    //        return GetAsync(requestUri, queryString);
-
-    //    queryString = isOwner ? $"&ownerId={id}" : $"&memberId={id}";
-
-    //    return GetAsync(requestUri, queryString);
-    //}
     public async Task<IList<Account>?> GetAccountAsync(Guid? id, bool isOwner = false) {
         
         var httpClient = _client.CreateClient("LegacyAzDevOps");
