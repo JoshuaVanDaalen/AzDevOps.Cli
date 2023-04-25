@@ -1,8 +1,16 @@
-﻿namespace AzDevOps.Cli.Models;
+﻿using Microsoft.DotNet.PlatformAbstractions;
 
-public class AzDevOpsSettings {    
-    public string BaseUrl { get; set; }
-    public string LegacyBaseUrl { get; set; }
+namespace AzDevOps.Cli.Models;
+
+public class AzDevOpsSettings {
     public string AccessToken { get; set; }
     public string Username { get; set; }
+    public AdoEndpoints? Endpoints { get; set; }
+
+}
+
+public sealed partial class AdoEndpoints {
+    public string AzureDevOps { get; set; }
+    public string VisualStudioSharedPlatformServices { get; set; }
+    public string AzureDevOpsSharedPlatformServices { get; set; }
 }

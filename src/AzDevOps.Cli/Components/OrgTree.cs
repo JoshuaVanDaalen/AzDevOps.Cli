@@ -20,40 +20,54 @@ public class OrgTree : TreeView {
 
     #region Properties
 
-    public IList<Account>? OrgList { get; set; }
+    public IList<Organisation>? OrgList { get; set; }
 
     #endregion Properties
     //public OrgTree(IAzDevOpsService adoService) {
     //    _adoService = adoService;
     //}
 
-    public OrgTree(IList<Account> accountList)
-    {
-        OrgList = accountList;
+    public OrgTree(IList<Organisation> orgList) {
+        OrgList = orgList;
         this.X = 0;
         this.Y = 0;
         this.Width = 40;
         this.Height = 20;
 
-        var tree = new TreeView() {
-            X = 0,
-            Y = 0,
-            Width = 40,
-            Height = 20
-        };
-
-        var root1 = new TreeNode("Organizations");
+        var treeNode = new TreeNode("Organizations");
 
         foreach (var org in OrgList) {
-            root1.Children.Add(new TreeNode(org.AccountName));
+            var orgNode = new TreeNode(org.Properties.AccountName);
+
+            var projectNode = new TreeNode("Projects");
+            orgNode.Children.Add(projectNode);
+            foreach (var obj in org.Projects) {
+                projectNode.Children.Add(new TreeNode(obj.Name));
+            }
+
+            var usersNode = new TreeNode("Users");
+            var allUsersNode = new TreeNode("All users");
+
+            foreach (var obj in org.Users) {
+                allUsersNode.Children.Add(new TreeNode(obj.DisplayName));
+            }
+
+            var groupRulesNode = new TreeNode("Groups rules");
+            orgNode.Children.Add(usersNode);
+            usersNode.Children.Add(allUsersNode);
+            usersNode.Children.Add(groupRulesNode);
+
+            var permissionsNode = new TreeNode("Permissions");
+            var groupsNode = new TreeNode("Groups");
+            var usersNode2 = new TreeNode("Users");
+            orgNode.Children.Add(permissionsNode);
+            orgNode.Children.Add(groupsNode);
+            permissionsNode.Children.Add(usersNode2);
+
+            treeNode.Children.Add(orgNode);
         }
 
-        var root2 = new TreeNode("Root2");
-        root2.Children.Add(new TreeNode("Child2.1"));
-        root2.Children.Add(new TreeNode("Child2.2"));
-
-        this.AddObject(root1);
-        tree.AddObject(root2);
+        this.AddObject(treeNode);
     }
 
     //public async static Task<OrgTree> Create(IAzDevOpsService adoService) {

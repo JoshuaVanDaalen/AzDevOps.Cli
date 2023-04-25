@@ -18,33 +18,42 @@ public static class DependencyInjection {
         AzDevOpsSettings azOptions = new();
         config.GetRequiredSection(nameof(AzDevOpsSettings)).Bind(azOptions);
 
+        var adoAccessToken = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
+                string.Format("{0}:{1}", "", azOptions.AccessToken)));
+
         // Inject Azure DevOps API
-        services.AddHttpClient<AzDevOpsSettings>(x => {
-            x.BaseAddress = new Uri(uriString: azOptions.BaseUrl);
-            x.DefaultRequestHeaders.Accept.Clear();
-            x.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            x.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
-                string.Format("{0}:{1}", "", azOptions.AccessToken))));
+        services.AddHttpClient(nameof(AzDevOpsSettings.Endpoints.AzureDevOps),
+            x => {
+                x.BaseAddress = new Uri(uriString: azOptions.Endpoints.AzureDevOps);
+                x.DefaultRequestHeaders.Accept.Clear();
+                x.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                x.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", adoAccessToken);
+            });
 
-        });
-        // Inject Legacy Azure DevOps API
-        services.AddHttpClient("LegacyAzDevOps", x => {
-            x.BaseAddress = new Uri(uriString: azOptions.LegacyBaseUrl);
-            x.DefaultRequestHeaders.Accept.Clear();
-            x.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            x.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
-                string.Format("{0}:{1}", "", azOptions.AccessToken))));
+        // Inject Visual Studio Shared Platform Services
+        services.AddHttpClient(nameof(AzDevOpsSettings.Endpoints.VisualStudioSharedPlatformServices),
+            x => {
+                x.BaseAddress = new Uri(uriString: azOptions.Endpoints.VisualStudioSharedPlatformServices);
+                x.DefaultRequestHeaders.Accept.Clear();
+                x.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                x.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", adoAccessToken);
+            });
 
-        });
+        // Inject Azure DevOps Shared Platform Services
+        services.AddHttpClient(nameof(AzDevOpsSettings.Endpoints.AzureDevOpsSharedPlatformServices),
+            x => {
+                x.BaseAddress = new Uri(uriString: azOptions.Endpoints.AzureDevOpsSharedPlatformServices);
+                x.DefaultRequestHeaders.Accept.Clear();
+                x.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                x.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", adoAccessToken);
+            });
 
         // Connect to Azure DevOps Services
-        // TODO: Figure out how to inject different rogs into VssConnection
-        VssConnection connection = new(new Uri($"{azOptions.BaseUrl}/greenSacrifice"),
-            new VssBasicCredential(string.Empty, azOptions.AccessToken));
+        // TODO: Figure out how to inject different orgs into VssConnection
+        //VssConnection connection = new(new Uri($"{azOptions.BaseUrl}/greenSacrifice"),
+        //    new VssBasicCredential(string.Empty, azOptions.AccessToken));
 
-        services.AddSingleton(connection.GetClient<GitHttpClient>());
+        //services.AddSingleton(connection.GetClient<GitHttpClient>());
 
 
         return services;

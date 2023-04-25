@@ -12,7 +12,7 @@ public partial class AzDevOpsWindow : Terminal.Gui.Window {
 
     private Terminal.Gui.Button button1;
 
-    private void InitializeComponent(IList<Account> orgList) {
+    private void InitializeComponent(IList<Organisation> orgList) {
         this.Title = "AzDevOps Cli";
         this.button1 = new Terminal.Gui.Button();
         this.label1 = new Terminal.Gui.Label();

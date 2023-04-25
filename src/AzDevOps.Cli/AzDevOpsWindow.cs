@@ -5,7 +5,7 @@ namespace AzDevOps.Cli;
 public partial class AzDevOpsWindow
 {
 
-    public AzDevOpsWindow(IList<Account> orgList)
+    public AzDevOpsWindow(IList<Organisation> orgList)
     {
         InitializeComponent(orgList);
         

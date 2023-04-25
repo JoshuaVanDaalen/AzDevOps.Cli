@@ -1,5 +1,6 @@
 ﻿using AzDevOps.Cli;
 using AzDevOps.Cli.Services;
+using AzDevOps.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +21,18 @@ using IHost host = Host.CreateDefaultBuilder(args)
     }).Build();
 
 var ado = host.Services.GetRequiredService<IAzDevOpsService>();
-var orgList = ado.GetAccountAsync(null).Result;
+
+var orgList = new List<Organisation>();
+var accountList = ado.GetAccountAsync(null).Result;
+
+foreach (var account in accountList) {
+
+    orgList.Add(new Organisation {
+        Properties = account,
+        Projects = ado.GetProjectAsync(account.AccountName).Result,
+        Users = ado.GetUserAsync(account.AccountName).Result,
+    });
+}
 
 
 Application.Init();

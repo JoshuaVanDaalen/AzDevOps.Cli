@@ -15,11 +15,6 @@ public sealed class AzDevOpsService : IAzDevOpsService {
     #region Fields
 
     private readonly IHttpClientFactory _client;
-    private readonly GitHttpClient _azDevOpsClient;
-    private readonly AzDevOpsSettings _azDevOpsSettings;
-    private readonly string _baseUrl;
-    private readonly string _credentials;
-    private readonly string _clientName;
     private readonly string _apiVersion;
 
     #endregion Fields
@@ -29,16 +24,9 @@ public sealed class AzDevOpsService : IAzDevOpsService {
 
     #region Constructors
 
-    public AzDevOpsService(IHttpClientFactory httpClientFactory, IConfiguration config
-        ) { //, GitHttpClient azDevOpsClient) {
+    public AzDevOpsService(IHttpClientFactory httpClientFactory) {
         _client = httpClientFactory;
-        //_azDevOpsClient = azDevOpsClient;
-        _clientName = "AzDevOpsApi";
         _apiVersion = "api-version=7.0";
-        _baseUrl = config.GetValue<string>(nameof(AzDevOpsSettings.BaseUrl));
-
-        //encode personal access token                   
-        _credentials = config.GetValue<string>(nameof(AzDevOpsSettings.AccessToken));
     }
 
     #endregion Constructors
@@ -52,8 +40,8 @@ public sealed class AzDevOpsService : IAzDevOpsService {
     /// <param isOwner="true"></param>
     /// <returns></returns>
     public async Task<IList<Account>?> GetAccountAsync(Guid? id, bool isOwner = false) {
-        
-        var httpClient = _client.CreateClient("LegacyAzDevOps");
+
+        var httpClient = _client.CreateClient(nameof(AzDevOpsSettings.Endpoints.VisualStudioSharedPlatformServices));
         var requestUri = "_apis/accounts";
         var queryString = isOwner ?
             $"?{_apiVersion}&ownerId={id}" :
@@ -67,11 +55,22 @@ public sealed class AzDevOpsService : IAzDevOpsService {
 
         return response;
     }
+    public async Task<IList<User>?> GetUserAsync(string organization) {
 
-    public async Task<IList<Project>?> GetProjectAsync() {
+        var httpClient = _client.CreateClient(nameof(AzDevOpsSettings.Endpoints.AzureDevOpsSharedPlatformServices));
+        var requestUri = $"{organization}/_apis/graph/users";
 
-        var httpClient = _client.CreateClient(nameof(AzDevOpsSettings));
-        var requestUri = "greenSacrifice/_apis/projects";
+        var response = await httpClient.GetAsync(requestUri: $"{requestUri}");
+
+        var result = JsonSerializer.Deserialize<List<User>>(
+            (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("value"));
+        return result;
+    }
+
+    public async Task<IList<Project>?> GetProjectAsync(string organization) {
+
+        var httpClient = _client.CreateClient(nameof(AzDevOpsSettings.Endpoints.AzureDevOps));
+        var requestUri = $"{organization}/_apis/projects";
         var queryString = $"?{_apiVersion}&stateFilter=All";
 
         var response = await httpClient.GetAsync(requestUri: $"{requestUri}{queryString}");
